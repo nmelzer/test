@@ -1,0 +1,526 @@
+---
+title: |
+  ![]("Figures/pigweb1.png"){width=4in}  
+  
+  
+  Analysis of the PIGWEB metadata survey 
+author: Nina Melzer^1^, Sarah Fischer^1^ and Claudia Kasper^2^
+date: 2025-06-27
+email: melzer@fbn-dummerstorf.de
+output:
+  pdf_document
+  
+fontsize: 10pt
+header-includes:
+  - \usepackage{graphics}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \rhead{\includegraphics[width = .06\textwidth]{Figures/pigweb-logo.png}}
+  - \setlength{\headheight}{31.78333pt}
+  - \renewcommand{\baselinestretch}{1.5}
+---
+
+<p style="font-size:8pt:">
+^1^ Research Institute for Farm Animal Biology (FBN),
+ Wilhelm-Stahl-Allee 2, 18196 Dummerstorf, Germany 
+^2^ Animal GenoPhenomics, Agroscope, Tioleyre 4, 1725 Posieux,
+ Switzerland 
+</p>
+
+
+
+# Background
+The survey was realized within the [\color{blue}PIGWEB](https://www.pigweb.eu) project. This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 101004770. The survey was also supported by the [\color{blue}NFDI4Biodiversity](https://www.nfdi4biodiversity.org/en/) project (part of the National Research Data infrastructure ([\color{blue}NFDI](https://www.nfdi.de/)) and received funding from the German Research Foundation (DFG; Grant Agreement No 442032008)). <br>
+
+The survey ran from 2024-09-03 to 2024-09-30 and aimed to explore the potential for adapting an existing metadata standard for biological data to livestock data. Metadata standards are essential to ensure consistent, accurate and accessible data across research studies and to facilitate the sharing and comparison of results. The feedback gathered will help refine and develop a standardized framework for livestock data and showed the need for such a development and implementation.
+
+
+```{r readin, echo=FALSE,results='hide',message=FALSE} 
+library(readxl)
+
+data=readxl::read_excel("data/PIGWEB-Metadata_Survey_publish.xlsx",col_names = T,.name_repair = "unique_quiet") 
+
+# load the R routines used within the Rmd file
+source("R/routines.R")
+```
+
+# 1. Analysis of the questions
+
+A total of `r nrow(data)` participants took part in the survey. The multiple-choice questions are indicated in the evaluation, along with the number of participant responses and the total number of selected responses. In addition, for questions with an extra free text option, the corresponding information was summarized and provided. The blank survey as well as anonymized and pre-selected survey answers (question only) can be found here [\color{blue}here](https://github.com/nmelzer/PIGWEBmetadataSurvey/tree/main/data)).
+
+
+## 1.1 Demographic information
+
+### 1.1.1  Are you currently in academia? 
+
+```{r question1, echo=FALSE}
+p1=data$`1.1 Are you currently in academia?`
+no1=length(which(p1=="Yes"))
+cat("Number of persons who answered: ",length(which(is.na(p1)==FALSE)),"\n")
+
+```
+
+```{r barplot1, echo=FALSE, fig.width=3, fig.height=1.2}
+par(mar = c(3, 2, 0, 1))
+create.barplot(dat=table(p1), xlim.add.width=16, text.corr.pos=6, font.cex=0.7)
+```
+
+
+### 1.1.2a What is your current position in academia? 
+
+The following shows how the “current positions” are distributed among the `r no1` participants who work in academia.
+\vspace{12pt}
+
+```{r question2, echo=FALSE}
+p2=data$`1.2a What is your current position in academia?`
+no2a=length(which(p2=="Other"))
+p2a=table(p2)
+names(p2a)[1]="Group leader / Principal investigator" ## change labelname: "Group leader / PI"
+names(p2a)=insert.linebreaks(names(p2a),30)
+```
+
+```{r barplot2, echo=FALSE, fig.width=8, fig.height=3.3}
+par(mar = c(3, 10, 0, 1))
+create.barplot(dat=p2a, xlim.add.width=5.5, text.corr.pos=3, font.cex=0.83)  
+```
+
+\vspace{12pt}
+\noindent
+
+**Free text option** If “Other” was selected, participants had the opportunity to specify their current position in a free text field.
+
+A total of `r no2a` people indicated “Other”. These included other types:
+
+* Posts at universities, such as assistant professor or lecturer (2 persons)
+* Researcher (5 persons)
+* Research support, such as data steward or project manager (3 persons)
+
+### 1.1.2b What is your current professional level?
+```{r question3, echo=FALSE}
+check3=length(which(is.na(data$`1.2b What is your current professional level?`)==FALSE))
+cat("Number of persons who answered: ",check3,"\n")
+
+p3=table(data$`1.2b What is your current professional level?`)#[c(1,2,4,3)] ## sort 
+names(p3)=insert.linebreaks(names(p3),40)
+```
+
+```{r barplot3, echo=FALSE, fig.width=8, fig.height=2.2}
+par(mar = c(3, 14.2, 0, 1))
+create.barplot(dat=p3,xlim.add.width=10, text.corr.pos=5,font.cex=0.92)
+```
+
+\vspace{12pt}
+\noindent
+**Free text option** The option was not used.
+
+### 1.1.3 What is your academic or professional background?
+
+This was a multiple-choice question. 
+
+```{r question4,  echo=FALSE}
+p4=data$`1.3 What is your academic or professional background?`
+
+#p4.answered = length(which(is.na(p4)==FALSE)) ## 66 answers
+
+## Unfortunately, the question contained two free text fields, one in the selection options and an extra one (cf. with "PIGWEB-Metadata-Survey.pdf").  
+#This leads to the fact that it was handled differently by the respondents and thus complicates the evaluation. In order to avoid duplications, for example, and to be able to provide the correct number, the following was implemented:
+
+# 1.  original answer opportunities
+orig.answer.poss=c("Agricultural Sciences","Animal Breeding and Genetics","Other Life Sciences","Technical Training","Consulting") ## first "other-field included"
+
+# 2. 6 participants used only the separate free text option without using the selection of the given options. So, they would not count if only the responses from the questions is considered.  
+answers.without.click.options=c("Animal behaviour","Animal and Food Science","Animal Science (behavior and welfare)","Geographer with GIS-experience","Veterinary medicine","Veterinary Science")
+# include the answer in the six empty fields in p4 (use for check na-values: length(which(is.na(p4)==TRUE)))
+p4[which(is.na(p4)==TRUE)]=answers.without.click.options
+# determine number of participant answers
+p4.answered = length(which(is.na(p4)==FALSE))
+
+## split the names within cells
+splitted.names=rename.it(labelname=p4)
+
+## table to get the frequencies
+p4.new=t(as.matrix(table(splitted.names)))
+
+## determine the original answer possibilities and set all other provided information as "Others"
+use.cols=match(orig.answer.poss,colnames(p4.new)) 
+
+Others=sum(p4.new[,-use.cols])
+
+freq=c(p4.new[,use.cols],Others)
+names(freq)[length(names(freq))]="Other*"
+
+cat("Number of persons who answered: ",p4.answered,"\nNumber of responses selected: ",sum(freq), "\n")
+
+```
+
+```{r barplot4, echo=FALSE, fig.width=8, fig.height=2.6}
+par(mar = c(3, 11.3, 0, 1))
+create.barplot(dat=freq,xlim.add.width=5, text.corr.pos=3,font.cex=0.88)
+```
+
+**Free text option ** 
+Due to two separate free text option fields the compilation of the answers was a more aggravated and the used methodology is described in Appendix A. The following was indicated in summary:  
+
+* Animal science including behavior & welfare (4 respondents),
+
+* Veterinary science and medicine (including Doctor of Veterianary Medicine; 6 respondents), 
+
+* Veterinary science and animal science (1 respodent), and 
+
+* Other sciences (6 respondents).
+
+
+### 1.1.4 On which species do you specialise on?
+
+This was a multiple-choice question. 
+
+```{r question5, echo=FALSE}
+p5=data$`1.4 On which species do you specialise on?`  
+
+ans.no=length(which(is.na(p5)==FALSE))
+
+splitted.names=rename.it(labelname=p5)
+
+## table to get the frequencies
+p5.new=table(splitted.names)
+
+cat("Number of persons who answered: ",ans.no,"\nNumber of responses selected:", sum(p5.new),"\n")
+```
+
+```{r barplot5, echo=FALSE, fig.width=5, fig.height=2.5}
+par(mar = c(3, 4.5, 0, 1))
+create.barplot(dat=p5.new, xlim.add.width=5, text.corr.pos=3, font.cex=0.72)
+```
+\vspace{12pt}
+
+**Free text option** The free text option was used by 9 participants. Other mentioned species were:
+
+* Horses (2 respondents),
+* Humans and other mammals (3 respondents)
+* Various vertebrate species (1 respondents)
+* 3 respondents did not work with animals or other organisms
+
+\vspace{12pt}
+
+## 1.2 Metadata and data activities
+
+### 1.2.1 Have you ever published data or do you publish data regularly?" 
+
+```{r question6, echo=FALSE}
+p6=data$`2.1 Have you ever published data or do you publish data regularly?`
+no.ans=length(which(is.na(p6)==FALSE))
+cat("Number of persons who answered: ",no.ans,"\n")
+```
+
+```{r barplot6, echo=FALSE, fig.width=3, fig.height=1.2}
+par(mar = c(3, 2, 0, 1))
+create.barplot(dat=table(p6), xlim.add.width=16, text.corr.pos=6, font.cex=0.7)
+```
+
+
+
+### 1.2.2 Do you utilise data from others, including colleagues within your institute or project partners?  
+
+```{r question7, echo=FALSE,out.height="22%"} 
+p7=data$`2.2 Do you utilise data from others, including colleagues within your institute or project partners?`
+no.ans1=length(which(is.na(p7)==FALSE))
+cat("Number of persons who answered: ",no.ans1,"\n")
+```
+
+```{r barplot7, echo=FALSE, fig.width=3, fig.height=1.6}
+par(mar = c(3, 2.8, 0, 1))
+create.barplot(dat=table(p7), xlim.add.width=16, text.corr.pos=6, font.cex=0.7)
+```
+
+### 1.2.3 Was the data adequately explained for your use (i.e., was it well-documented and described)?
+```{r question8, echo=FALSE,out.height="20%"}
+p8=data$`2.3 Was the data adequately explained for your use (i.e., was it well-documented and described)?` 
+no.ans2=length(which(is.na(p8)==FALSE))
+cat("Number of persons who answered: ",no.ans2,"\n")
+```
+
+```{r barplot8, echo=FALSE, fig.width=3.4, fig.height=1.2}
+par(mar = c(3, 2, 0, 1))
+create.barplot(dat=table(p8), xlim.add.width=16, text.corr.pos=6, font.cex=0.7)
+```
+
+In general, the question was answered from all participants which chosen "yes"and "unsure" from the previous question.
+
+### Please specify the issues you encountered 
+
+A total of 16 of the `r length(which(p8=="No"))` participants responded with 'No' in the previous question explained their problems with data reuse in more detail, as summarized below.
+
+* Data access and availability 
+  *	Raw data (e.g., images) not provided 
+  *	Data access difficult 
+  *	Varying data storage standards 
+
+* Data documentation and provenance (variable level of detail in data documentation, often omitting important information) 
+  *	The farming system 
+  * How the study was conducted 
+  * The methods used to obtain the data (including units of measurement) 
+  * The provenance of the data 
+  * The data cleaning process 
+* Standardization and consistency issues 
+  * Lack of standardized nomenclature for 
+    * Breed, phenotypes and genomic variants 
+    * Different types of recording for the same phenotypes 
+    * Unclear phenotype definitions 
+  *	Inconsistent use of animal identifiers 
+* Data format and presentation 
+  * Embedded macros in Excel files 
+  * Abbreviations used without definitions 
+  * Different languages used in documentation
+
+
+### 1.2.4 Are you aware of a metadata standard for the data you regularly work with?      
+```{r question9, echo=FALSE}
+p9=data$`2.4 Are you aware of a metadata standard for the data you regularly work with?` ## sort not yet done
+no.ans4=length(which(is.na(p9)==FALSE))
+cat("Number of persons who answered: ",no.ans4,"\n")
+```
+
+```{r barplot9, echo=FALSE, fig.width=3.4, fig.height=1.2}
+par(mar = c(3, 2, 0, 1))
+create.barplot(dat=table(p9), xlim.add.width=10, text.corr.pos=6, font.cex=0.7)
+```
+\vspace{12pt}
+
+### If Yes, please provide some examples   
+
+Number of persons who answered: 15
+
+* Proper standards:
+  *	Dublin Core
+  * ABCD (Access to Biological Collections Data)
+  * DICOM (Digital Imaging and Communications in Medicine)
+  * DCAT-AP.de (common German metadata model for the exchange of open administrative data)
+  
+* Data repositories that require metadata
+  * FAANG (Functional Annotation of Animal Genomes)
+  *	EVA (European Variation Archive)
+  *	HCA (Human Cell Atlas)
+  *	GeoCat (geographic data catalog of Switzerland)
+  *	Proteomexchange (globally coordinated standard data submission and dissemination pipelines for proteomics data)
+
+* Data management and reporting guidelines
+  *	MIAME (Minimum Information About a Microarray Experiment)
+  * MINSEQE (Minimum Information about a high-throughput SEQuencing Experiment)
+  * Plasma-MDS (guidelines for Research data management for low-temperature plasma science)
+
+* Ontologies:
+  *	ATOL (Animal Trait Ontology of Livestock)
+  *	Ontologies for metabolites
+
+* Others:
+  * Verbal description of participant’s understanding of standard:
+    * Using and reporting standard operating procedures (SOPs)
+    *	Sharing raw data and reporting effect sizes
+    *	Generally confirming awareness and usage of metadata standards
+
+### 1.2.5 Would you agree that a metadata standard customised for livestock would be beneficial?             
+
+```{r question10, echo=FALSE}
+p10=data$`2.5 Would you agree that a metadata standard customised for livestock would be beneficial?` ## 
+no.ans3=length(which(is.na(p10)==FALSE))
+cat("The question answered: ",no.ans3,"\n")
+p10.1=insert.linebreaks(p10,46)
+```
+
+```{r barplot10, echo=FALSE, fig.width=8, fig.height=2.4}
+par(mar = c(3, 16.3, 0, 1))
+create.barplot(dat=table(p10.1), xlim.add.width=10, text.corr.pos=5, font.cex=0.88)
+```
+
+\vspace{12pt}
+
+### 1.2.6 Have you used a tool to annotate data?  
+
+```{r question11, echo=FALSE}
+p11=data$`2.6 Have you used a tool to annotate data?` ## 
+no.ans4=length(which(is.na(p11)==FALSE))
+cat("The question answered: ",no.ans4,"\n")
+```
+
+```{r barplot11, echo=FALSE, fig.width=4, fig.height=1.6}
+par(mar = c(3, 3, 0, 1))
+create.barplot(dat=table(p11), xlim.add.width=10, text.corr.pos=6, font.cex=0.71)
+```  
+\vspace{12pt}
+
+### "If Yes, Please specify the tool"        
+
+Number of persons who answered were 16. The responses are summarized below.
+
+* Annotation directly in respective data repository
+  * Zenodo
+  *	NCBI
+  *	ENSEMBL
+
+* Various software (not specific for data annotation)
+  *	Microsoft Office programs: Excel, Access
+  *	Statistical software: R, Minitab
+  *	Electronic lab notebooks
+  *	Reproduction and management software for livestock
+
+* Specific annotation tools for various kinds of data
+  *	Azimuth: App for reference-based single-cell analysis;  uses an annotated reference dataset to automate the processing, analysis, and interpretation of a new single-cell RNA-seq or ATAC-seq experiment ([\color{blue}https://azimuth.hubmapconsortium.org](https://azimuth.hubmapconsortium.org))
+  *	PhenoTagger: method to recognize Human Phenotype Ontology (HPO) concepts in unstructured biomedical text ([\color{blue}https://github.com/ncbi-nlp/PhenoTagger](https://github.com/ncbi-nlp/PhenoTagger))
+  *	G:profiler: tool for functional enrichment analysis and mining additional information about gene functions ([\color{blue}https://biit.cs.ut.ee/gprofiler/gost](https://biit.cs.ut.ee/gprofiler/gost))
+  *	(w)HOL(e)ISTIC GO enrichment: workflow based on open-sourced freely available software and genomic databases to annotate, analyze, and visualize biological networks ([\color{blue}https://doi.org/10.21203/rs.2.20371/v1](https://doi.org/10.21203/rs.2.20371/v1))
+  *	The Observer: tool for detailed behavioral data recording, visualization, and analysis ([\color{blue}https://noldus.com/observer-xt-human](https://noldus.com/observer-xt-human))
+
+\vspace{12pt}
+
+### 1.2.7 What criteria are most important to you when reusing livestock data?  Please reorder in order of preference.
+
+```{r question12, echo=FALSE}
+no.ans5=length(which(is.na(data$`What criteria are most important to you when reusing livestock data?  Please reorder in order of preference.`)==FALSE))
+cat("The question answered: ",no.ans5,"\n")
+
+p12=unlist(data[,12])#`What criteria are most important to you when reusing livestock data?  Please reorder in order of preference.`) 
+
+## create empty matrix
+res=matrix(NA,length(p12),9)
+
+## splitting the answers 
+answers=sapply(p12, function(x) (strsplit(x,"\r\n")))
+
+## use the first answer to extract the selection
+colnames(res)=substring(answers[[1]],4,nchar(answers[[1]]))
+
+## go over the answers and go through the answers and enter the order number accordingly
+for(i in 1:length(p12))res[i,match(substring(answers[[i]], 4, nchar(answers[[i]])), colnames(res))]=1:9
+
+mean1=sapply(1:ncol(res), function(x) (mean(res[,x])))
+names(mean1)=colnames(res)
+```
+
+```{r barplot12, echo=FALSE, fig.width=8, fig.height=4.6}
+par(mar = c(3, 17, 0, 1))
+create.barplot(dat=mean1, xlim.add.width=1,text.corr.pos=6, font.cex=0.9, set.para=1)
+```
+
+\vspace{12pt}
+
+### 2.2.8 Are there other criteria that would be important to you? Please list them and explain why.   
+
+Number of persons who answered were 26. The responses are summarized below.
+
+* General
+  * Provenance/source of data
+  *	Associated publications; previous analyses of the same data
+  *	Data collector’s willingness to collaborate
+  *	Identity of data collector
+  *	Geographic location
+
+* Animal traits
+  *	Age
+  *	Lactation stage (cow)
+  *	Performance traits
+  *	Size
+
+* Health
+  * State of the animal
+  *	Sanitary interventions
+  *	Health status of animal
+  *	Clinical phenotypic data
+  *	Disease progression
+
+* Group-level information
+  *	Pedigree information for genetic analyses 
+  *	Group size 
+  *	Group composition (identity of group members) to account for social interaction effect
+  *	Removal of animals from the group
+	
+* Environmental information
+  *	Husbandry system
+  *	Season
+  *	Climate
+  *	Barn environment (such as slatted floor, enrichment material provided, number of animals/unit, space availability)
+  *	Pen (or field/pasture) layout
+
+* Trial-specific information
+  *	Experimental design
+  *	Experimental factors/treatments (including any treatments applied that might influence the outcome)
+  *	Blocking
+  *	Randomization
+  *	Explanations of unusual data
+  *	Detailed phenotype information (what was measured, which technology used)
+  *	Settings of machine/instrument used
+  *	Protocol for data collection (Standard Operating Procedure (SOP))
+  * Processing steps for laboratory/molecular data (kits used, validation steps, sequencing parameters)
+  *	Ethogram used for behavioral data
+
+* Data processing
+  *	Methods applied (e.g., link to research paper)
+  *	Data cleaning steps, including code and detailed information
+  *	Bioinformatics pipeline
+
+\vspace{12pt}
+
+# Acknowledgement
+We thank the EFFAB team, especially Geena Cartick, for their support with the survey. The survey was performed using [\color{blue}https://jotform.com]("https://jotform.com").
+
+We would like to thank all respondents.
+
+
+# Source code and data availability
+
+The document was created with RMarkdown under Windows 11 (x64) using the following: 
+
+
+Posit team (2024). RStudio: Integrated Development Environment for R. Posit Software, PBC, Boston, MA. [\color{blue}http://www.posit.co/](http://www.posit.co/)
+
+R Core Team (2024). R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing, Vienna, Austria. R version 4.4.1. [\color{blue}https://www.R-project.org/](https://www.R-project.org/)
+
+
+Allaire J, Xie Y, Dervieux C, McPherson J, Luraschi J, Ushey K, Atkins A, Wickham H, Cheng J, Chang W, Iannone R (2024). _rmarkdown: Dynamic Documents for R_. R package version 2.29, [\color{blue}https://github.com/rstudio/rmarkdown](https://github.com/rstudio/rmarkdown)
+
+Chang W (2024). _fastmap: Fast Data Structures_. R package version 1.2.0, [\color{blue}https://CRAN.R-project.org/package=fastmap](https://CRAN.R-project.org/package=fastmap)
+
+Cheng J, Sievert C, Schloerke B, Chang W, Xie Y, Allen J (2024). _htmltools: Tools for HTML_. R package version 0.5.8.1, [\color{blue}https://CRAN.R-project.org/package=htmltools)](https://CRAN.R-project.org/package=htmltools)
+
+Csardi G (2025). _cli: Helpers for Developing Command Line Interfaces_. R package version 3.6.4, [\color{blue}https://CRAN.R-project.org/package=cli](https://CRAN.R-project.org/package=cli)
+
+Eddelbuettel D (2024). _digest: Create Compact Hash Digests of R Objects_. R package version 0.6.37, [\color{blue}https://CRAN.R-project.org/package=digest](https://CRAN.R-project.org/package=digest)
+
+Garbett SP, Stephens J, Simonov K, Xie Y, Dong Z, Wickham H, Horner J, reikoch, Beasley W, O'Connor B, Warnes GR, Quinn M, Kamvar ZN (2023). _yaml: Methods to Convert R Data to YAML and Back_. R package version 2.3.8,  [\color{blue}https://CRAN.R-project.org/package=yaml](https://CRAN.R-project.org/package=yaml)
+
+Henry L, Wickham H (2025). _rlang: Functions for Base Types and Core R and 'Tidyverse' Features_. R package version 1.1.5, [\color{blue}https://CRAN.R-project.org/package=rlang](https://CRAN.R-project.org/package=rlang)
+
+van Oostrum, P.(2025). fancyhdr - Extensive control of page headers and footers in LaTeX2e. version 5.2, [\color{blue}https://ctan.org/pkg/fancyhdr](https://ctan.org/pkg/fancyhdr)
+
+Ushey K, Allaire J, Wickham H, Ritchie G (2024). _rstudioapi: Safely Access the RStudio API_. R package version 0.17.1, [\color{blue}https://CRAN.R-project.org/package=rstudioapi](https://CRAN.R-project.org/package=rstudioapi)
+
+Wickham H, Bryan J (2023). readxl: Read Excel Files. R package version 1.4.3, [\color{blue}https://CRAN.R-project.org/package=readxl](https://CRAN.R-project.org/package=readxl)
+
+Wickham H, Xie Y (2025). _evaluate: Parsing and Evaluation Tools that Provide More Details than the Default_. R package version 1.0.3, [\color{blue}https://CRAN.R-project.org/package=evaluate](https://CRAN.R-project.org/package=evaluate)
+
+Xie Y (2024). _knitr: A General-Purpose Package for Dynamic Report Generation in R_. R package version 1.48, [\color{blue}https://yihui.org/knitr/](https://yihui.org/knitr/)
+
+Xie Y (2025). _xfun: Supporting Functions for Packages Maintained by 'Yihui Xie'_. R package version 0.51, [\color{blue}https://CRAN.R-project.org/package=xfun](https://CRAN.R-project.org/package=xfun)
+
+Xie Y (2025). _tinytex: Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents_. R package version 0.56, [\color{blue}https://github.com/rstudio/tinytex](https://github.com/rstudio/tinytex)
+   
+\vspace{12pt}
+The corresponding source code as well as anonymized and pre-selected data are available under [\color{blue}https://github.com/nmelzer/PIGWEBmetadataSurvey](https://github.com/nmelzer/PIGWEBmetadataSurvey). 
+
+
+# Additional sources
+
+[\color{blue}https://spencerschien.info/post/r_for_nonprofits/latex_tips_basic/](https://spencerschien.info/post/r_for_nonprofits/latex_tips_basic/)
+
+[\color{blue}https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) 
+
+Xie Y, Dervieux C, Riederer E (2020). _R Markdown Cookbook_. Chapman and Hall/CRC, Boca Raton, Florida. ISBN 9780367563837, [\color{blue}https://bookdown.org/yihui/rmarkdown-cookbook](https://bookdown.org/yihui/rmarkdown-cookbook)
+
+\newpage
+# Appendix A
+The question contained two free text fields, one in the selection options and a separate one (cf. with [\color{blue}PIGWEB-Metadata-Survey.pdf](https://github.com/nmelzer/PIGWEBmetadataSurvey/tree/main/data)). This leads to the fact that it was handled differently by the respondents. In order to avoid duplications, for example, and to be able to provide total numbers, the following was realized:
+
+ 1. A total of 6 participants did not select any of the given options, but instead only gave an answer in the separate free text field. Therefore, they would not count for the question directly. To enable counting the 6 answers were included in the question (random order).
+
+ 2. Moreover, 3 participants used only the free text field within the selection options and 3 participants used both free text fields providing the same information (leads to double counting). All answers (1. and 2.) were considered as "Other\*".
+
+ 3. A total of 5 participants chose from the selection options and provided further information in the separate free text field. This information was used together with the "Other\*" to summarize the free text fields.
