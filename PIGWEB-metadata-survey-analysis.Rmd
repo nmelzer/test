@@ -46,7 +46,7 @@ source("R/routines.R")
 
 # 1. Analysis of the questions
 
-A total of `r nrow(data)` participants took part in the survey. The multiple-choice questions are indicated in the evaluation, along with the number of participant responses and the total number of selected responses. In addition, for questions with an extra free text option, the corresponding information was summarized and provided. The blank survey as well as anonymized and pre-selected survey answers (question only) can be found here [\color{blue}here](https://github.com/nmelzer/PIGWEBmetadataSurvey/tree/main/data)).
+A total of `r nrow(data)` participants took part in the survey. The multiple-choice questions are indicated in the evaluation, along with the number of participant responses and the total number of selected responses. In addition, for questions with an extra free text option, the corresponding information was summarized and provided. The blank survey as well as anonymized and pre-selected survey answers (question only) can be found here [\color{blue}here](https://github.com/nmelzer/test/tree/main/data)).
 
 
 ## 1.1 Demographic information
@@ -504,7 +504,7 @@ Xie Y (2025). _xfun: Supporting Functions for Packages Maintained by 'Yihui Xie'
 Xie Y (2025). _tinytex: Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents_. R package version 0.56, [\color{blue}https://github.com/rstudio/tinytex](https://github.com/rstudio/tinytex)
    
 \vspace{12pt}
-The corresponding source code as well as anonymized and pre-selected data are available under [\color{blue}https://github.com/nmelzer/PIGWEBmetadataSurvey](https://github.com/nmelzer/PIGWEBmetadataSurvey). 
+The corresponding source code as well as anonymized and pre-selected data are available under [\color{blue}https://github.com/nmelzer/PIGWEBmetadataSurvey](https://github.com/nmelzer/test). 
 
 
 # Additional sources
@@ -517,7 +517,7 @@ Xie Y, Dervieux C, Riederer E (2020). _R Markdown Cookbook_. Chapman and Hall/CR
 
 \newpage
 # Appendix A
-The question contained two free text fields, one in the selection options and a separate one (cf. with [\color{blue}PIGWEB-Metadata-Survey.pdf](https://github.com/nmelzer/PIGWEBmetadataSurvey/tree/main/data)). This leads to the fact that it was handled differently by the respondents. In order to avoid duplications, for example, and to be able to provide total numbers, the following was realized:
+The question contained two free text fields, one in the selection options and a separate one (cf. with [\color{blue}PIGWEB-Metadata-Survey.pdf](https://github.com/nmelzer/test/tree/main/data)). This leads to the fact that it was handled differently by the respondents. In order to avoid duplications, for example, and to be able to provide total numbers, the following was realized:
 
  1. A total of 6 participants did not select any of the given options, but instead only gave an answer in the separate free text field. Therefore, they would not count for the question directly. To enable counting the 6 answers were included in the question (random order).
 
